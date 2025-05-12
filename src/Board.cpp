@@ -59,15 +59,32 @@ void Board::render() {
     highLight(hoverRow, hoverCol, {169, 169, 169, 128});
     drawNumbers();
      if (showVictoryMessage) {
-        drawVictoryMessage();
+        drawVictoryMessage("VICTORY!","Congratulations! You solved the puzzle!");
     }
+    if (timer->getTime() >= 600) {
+        drawVictoryMessage("TIME UP!","You ran out of time!");
+    }
+    
 }
 
 void Board::handleEvent(SDL_Event& e) {
     if (e.type == SDL_MOUSEBUTTONDOWN) {
         if (showVictoryMessage) {
             showVictoryMessage = false;
-            return;
+        Utils::generatePuzzle();
+        for (int i = 0; i < 9; ++i) {
+            for (int j = 0; j < 9; ++j) {
+                board[i][j] = Utils::puzzle[i][j];
+                fixed[i][j] = Utils::puzzle[i][j] != 0;
+            }
+        }
+        wrongCells.clear();
+        selectedRow = -1;
+        selectedCol = -1;
+        selectedValue = 0;
+        timer->setOffset(0);
+
+        return; 
         }
         int x = e.button.x;
         int y = e.button.y;
@@ -238,7 +255,7 @@ bool Board::checkVictory() {
     return errors.empty();
 }
 
-void Board::drawVictoryMessage() {
+void Board::drawVictoryMessage(const std::string& text, const std::string& subtext) {
     timer->stopTimer();
     
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 192);
@@ -250,7 +267,7 @@ void Board::drawVictoryMessage() {
     SDL_Color color = {255, 215, 0, 255}; 
     TTF_SetFontStyle(font, TTF_STYLE_BOLD);
     
-    SDL_Surface* surface = TTF_RenderText_Solid(font, "VICTORY!", color);
+    SDL_Surface* surface = TTF_RenderText_Solid(font, text.c_str(), color);
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     
     int x = (550 - surface->w) / 2;
@@ -266,7 +283,7 @@ void Board::drawVictoryMessage() {
     TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
     color = {255, 255, 255, 255}; 
     
-    surface = TTF_RenderText_Solid(font, "Congratulations! You solved the puzzle!", color);
+    surface = TTF_RenderText_Solid(font, subtext.c_str(), color);
     texture = SDL_CreateTextureFromSurface(renderer, surface);
     
     x = (550 - surface->w) / 2;

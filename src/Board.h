@@ -40,6 +40,6 @@ private:
     int getOffsetWithThickness(int index);
     void highLight(int row, int col, SDL_Color color);
     bool checkVictory();
-    void drawVictoryMessage();
+    void drawVictoryMessage(const std::string& text, const std::string& subtext);
     void playVictorySound(); 
 };
