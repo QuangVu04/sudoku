@@ -1,6 +1,7 @@
 #include "Game.h"
 #include <SDL_ttf.h>
 #include <SDL.h>
+#include <SDL_mixer.h>
 #include <iostream>
 #include <string>
 
@@ -14,10 +15,10 @@ bool Game::init(const char* title) {
         return false;
     }
 
-    // if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-    //     std::cerr << "SDL_mixer Init Error: " << Mix_GetError() << "\n";
-    //     return false;
-    // }
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        std::cerr << "SDL_mixer Init Error: " << Mix_GetError() << "\n";
+        return false;
+    }
 
     window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
@@ -37,13 +38,13 @@ bool Game::init(const char* title) {
         std::cerr << "Failed to load font: " << TTF_GetError() << "\n";
     }
 
-    // std::string musicPath = basePath + "assets/sound_game.wav";
-    // bgm = Mix_LoadMUS(musicPath.c_str());
-    // if (!bgm) {
-    // std::cerr << "Failed to load music: " << Mix_GetError() << "\n";
-    // } else {
-    // Mix_PlayMusic(bgm, -1); 
-    // }
+    std::string musicPath = basePath + "assets/sound_game.wav";
+    bgm = Mix_LoadMUS(musicPath.c_str());
+    if (!bgm) {
+    std::cerr << "Failed to load music: " << Mix_GetError() << "\n";
+    } else {
+    Mix_PlayMusic(bgm, -1); 
+    }
 
     running = true;
     return true;

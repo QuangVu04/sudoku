@@ -22,6 +22,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(SDL2_ttf)
 
+# Tải SDL2_mixer
+FetchContent_Declare(
+    SDL2_mixer
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git
+    GIT_TAG release-2.6.3
+)
+FetchContent_MakeAvailable(SDL2_mixer)
+
 set(SOURCES
     src/main.cpp
     src/Game.cpp
@@ -38,11 +46,13 @@ target_link_libraries(SudokuGame
     SDL2::SDL2
     SDL2_ttf::SDL2_ttf
     SDL2::SDL2main
+    SDL2_mixer::SDL2_mixer
 )
 
 target_include_directories(SudokuGame PRIVATE
     ${SDL2_SOURCE_DIR}/include
     ${SDL2_TTF_SOURCE_DIR}/include
+    ${SDL2_MIXER_SOURCE_DIR}/include
 )
 
 add_custom_command(TARGET SudokuGame POST_BUILD
@@ -58,6 +68,12 @@ add_custom_command(TARGET SudokuGame POST_BUILD
     $<TARGET_FILE_DIR:SudokuGame>/
 )
 
+add_custom_command(TARGET SudokuGame POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_SOURCE_DIR}/assets/sound_game.wav
+    $<TARGET_FILE_DIR:SudokuGame>/assets/
+)
+
 if (WIN32)
     add_custom_command(TARGET SudokuGame POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -67,6 +83,11 @@ if (WIN32)
     add_custom_command(TARGET SudokuGame POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE_DIR:SDL2_ttf::SDL2_ttf>/SDL2_ttf.dll
+        $<TARGET_FILE_DIR:SudokuGame>
+    )
+    add_custom_command(TARGET SudokuGame POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE_DIR:SDL2_mixer::SDL2_mixer>/SDL2_mixer.dll
         $<TARGET_FILE_DIR:SudokuGame>
     )
 endif()

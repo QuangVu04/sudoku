@@ -4,7 +4,7 @@
 #include "Board.h"
 #include "Timer.h"
 #include <string>
-// #include <SDL_mixer.h>
+#include <SDL_mixer.h>
 
 class Game {
 public:
@@ -24,8 +24,7 @@ private:
     SDL_Renderer* renderer;
     TTF_Font* font;
     bool running;
-    // Mix_Music *bgm = nullptr;
-    // Mix_Chunk *gClick = nullptr;
+    Mix_Music *bgm = nullptr;
 
     Board* board;
     Timer* timer;
