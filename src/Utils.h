@@ -15,7 +15,7 @@ private:
     static void removeNumbers(int b[9][9], int count);
 
 public:
-    Utils() = delete; // Chặn tạo đối tượng nếu không cần
+    Utils() = delete; 
     static int board[9][9];
     static int puzzle[9][9];
     static std::mt19937 rng;

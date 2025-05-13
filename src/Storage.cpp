@@ -47,7 +47,7 @@ void Storage::load(const char* filename, int board[9][9], bool fixed[9][9], Uint
     if (sscanf(timeStr.c_str(), "%d:%d", &minutes, &seconds) == 2)
         elapsedSeconds = minutes * 60 + seconds;
     else
-        elapsedSeconds = 0;  // nếu lỗi format
+        elapsedSeconds = 0; 
 
     file.close();
 }
