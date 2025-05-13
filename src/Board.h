@@ -1,0 +1,39 @@
+#pragma once
+#include <SDL.h>
+#include <SDL_ttf.h>
+#include <vector>
+#include "Timer.h"
+#include "Button.h"
+
+class Board {
+public:
+    Board(SDL_Renderer* renderer, Timer* timer, int windowWidth, int windowHeight);
+    ~Board();
+
+    void render();
+    void handleEvent(SDL_Event& e);
+
+private:
+    const int PADDING_TOP = 50;
+    const int CELL_SIZE = 50;
+    const int BOARD_SIZE = 9 * CELL_SIZE + 18;
+
+    SDL_Renderer* renderer;
+    TTF_Font* font;
+    int selectedRow, selectedCol, selectedValue;
+    int hoverRow, hoverCol;
+    int board[9][9];
+    bool fixed[9][9];
+    Timer* timer;
+
+    int paddingLeft, paddingTop;
+    std::vector<Button*> buttons;
+    std::vector<std::pair<int, int>> wrongCells;
+
+    void drawGrid();
+    void drawNumbers();
+    void loadFromFile();
+    void saveToFile();
+    int getOffsetWithThickness(int index);
+    void highLight(int row, int col, SDL_Color color);
+};
