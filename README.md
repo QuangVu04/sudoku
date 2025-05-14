@@ -11,7 +11,7 @@ Xin tự giới thiệu mình là Nguyễn QUang Vũ, hiện mình đang là sin
 - [x] Cắm cờ
 - [x] Chia file theo đối tượng
 - [x] Đọc, ghi file
-## 3.Ngưỡng điểm tự đánh giá: **7.5**
+## 3.Ngưỡng điểm tự đánh giá: **8,5**
 ## 4.
 - [x] **Đồ họa đơn giản**, sử dụng **SDL2** để hiển thị lưới, số, highlight.
 - [x] Có khả năng **nhập số, xoá ô**, **chọn ô bằng chuột**.
