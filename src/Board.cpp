@@ -4,6 +4,7 @@
 #include "Utils.h"
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
 Board::Board(SDL_Renderer* renderer, Timer* timer, int windowWidth, int windowHeight)
     : renderer(renderer), selectedRow(-1), selectedCol(-1), font(nullptr), timer(timer), hoverCol(-1), hoverRow(-1) {
@@ -51,10 +52,17 @@ void Board::render() {
 
     highLight(hoverRow, hoverCol, {169, 169, 169, 128});
     drawNumbers();
+     if (showVictoryMessage) {
+        drawVictoryMessage();
+    }
 }
 
 void Board::handleEvent(SDL_Event& e) {
     if (e.type == SDL_MOUSEBUTTONDOWN) {
+        if (showVictoryMessage) {
+            showVictoryMessage = false;
+            return;
+        }
         int x = e.button.x;
         int y = e.button.y;
         if (y > paddingTop && y < paddingTop + BOARD_SIZE
@@ -69,6 +77,7 @@ void Board::handleEvent(SDL_Event& e) {
             }
         } else if (buttons[0]->isClicked(x, y)) {
             wrongCells = Utils::checkWrongCells(board);
+            showVictoryMessage = checkVictory();
         } else if (buttons[1]->isClicked(x, y)) {
             Utils::generatePuzzle();
             for (int i = 0; i < 9; ++i) {
@@ -105,7 +114,11 @@ void Board::handleEvent(SDL_Event& e) {
             int num = e.key.keysym.sym - SDLK_0;
             if (num >= 1 && num <= 9) {
                 board[selectedRow][selectedCol] = num;
-                
+                 if (checkVictory()) {
+                    showVictoryMessage = true;
+                    timer->stopTimer();
+                    
+                }
             } else if (e.key.keysym.sym == SDLK_BACKSPACE || e.key.keysym.sym == SDLK_DELETE) {
                 board[selectedRow][selectedCol] = 0;
             }
@@ -194,4 +207,80 @@ int Board::getOffsetWithThickness(int index) {
     int thickCount = index / 3 + 1;
     int thinCount = index + 1 - thickCount;
     return thickCount * 3 + thinCount * 1;
+}
+bool Board::checkVictory() {
+    
+    for (int i = 0; i < 9; ++i) {
+        for (int j = 0; j < 9; ++j) {
+            if (board[i][j] == 0) {
+                return false; 
+            }
+        }
+    }
+    
+    
+    std::vector<std::pair<int, int>> errors = Utils::checkWrongCells(board);
+    return errors.empty();
+}
+
+void Board::drawVictoryMessage() {
+    timer->stopTimer();
+    
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 192);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_Rect bgRect = {0, 0, 550, 600}; 
+    SDL_RenderFillRect(renderer, &bgRect);
+    
+    
+    SDL_Color color = {255, 215, 0, 255}; 
+    TTF_SetFontStyle(font, TTF_STYLE_BOLD);
+    
+    SDL_Surface* surface = TTF_RenderText_Solid(font, "VICTORY!", color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    
+    int x = (550 - surface->w) / 2;
+    int y = (600 - surface->h) / 2 - 30;
+    
+    SDL_Rect dst = {x, y, surface->w, surface->h};
+    SDL_RenderCopy(renderer, texture, NULL, &dst);
+    
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
+    
+    
+    TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
+    color = {255, 255, 255, 255}; 
+    
+    surface = TTF_RenderText_Solid(font, "Congratulations! You solved the puzzle!", color);
+    texture = SDL_CreateTextureFromSurface(renderer, surface);
+    
+    x = (550 - surface->w) / 2;
+    y = (600 - surface->h) / 2 + 20;
+    
+    dst = {x, y, surface->w, surface->h};
+    SDL_RenderCopy(renderer, texture, NULL, &dst);
+    
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
+    
+    
+    std::stringstream ss;
+    Uint32 totalSeconds = timer->getTime();
+    int minutes = totalSeconds / 60;
+    int seconds = totalSeconds % 60;
+    
+    ss << "Time: " << std::setw(2) << std::setfill('0') << minutes
+       << ":" << std::setw(2) << std::setfill('0') << seconds;
+    
+    surface = TTF_RenderText_Solid(font, ss.str().c_str(), color);
+    texture = SDL_CreateTextureFromSurface(renderer, surface);
+    
+    x = (550 - surface->w) / 2;
+    y = (600 - surface->h) / 2 + 60;
+    
+    dst = {x, y, surface->w, surface->h};
+    SDL_RenderCopy(renderer, texture, NULL, &dst);
+    
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
 }

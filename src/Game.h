@@ -25,7 +25,7 @@ private:
     TTF_Font* font;
     bool running;
     Mix_Music *bgm = nullptr;
-
+    Mix_Chunk* victorySound = nullptr;
     Board* board;
     Timer* timer;
 };

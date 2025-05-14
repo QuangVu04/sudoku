@@ -41,3 +41,10 @@ void Timer::render(SDL_Renderer* renderer) {
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
 }
+
+void Timer::stopTimer() {
+    
+    offsetSeconds = getTime();
+    
+    startTicks = SDL_GetTicks();
+}

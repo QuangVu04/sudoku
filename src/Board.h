@@ -25,6 +25,7 @@ private:
     int board[9][9];
     bool fixed[9][9];
     Timer* timer;
+    bool showVictoryMessage;
 
     int paddingLeft, paddingTop;
     std::vector<Button*> buttons;
@@ -36,4 +37,6 @@ private:
     void saveToFile();
     int getOffsetWithThickness(int index);
     void highLight(int row, int col, SDL_Color color);
+    bool checkVictory();
+    void drawVictoryMessage();
 };

@@ -71,6 +71,7 @@ add_custom_command(TARGET SudokuGame POST_BUILD
 add_custom_command(TARGET SudokuGame POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${CMAKE_SOURCE_DIR}/assets/sound_game.wav
+    ${CMAKE_SOURCE_DIR}/assets/victory_sound.wav
     $<TARGET_FILE_DIR:SudokuGame>/assets/
 )
 

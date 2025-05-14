@@ -46,6 +46,14 @@ bool Game::init(const char* title) {
     Mix_PlayMusic(bgm, -1); 
     }
 
+    std::string victorySoundPath = basePath + "assets/victory_sound.wav";
+    victorySound = Mix_LoadWAV(victorySoundPath.c_str());
+    if (!victorySound) {
+        std::cerr << "Failed to load victory sound: " << Mix_GetError() << "\n";
+
+    }
+
+
     running = true;
     return true;
 }
@@ -82,7 +90,7 @@ void Game::clean() {
     delete board;
     delete timer;
     if (font) TTF_CloseFont(font);
-    // Mix_CloseAudio();
+    Mix_CloseAudio();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     TTF_Quit();

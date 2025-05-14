@@ -10,6 +10,7 @@ public:
     void setOffset(Uint32 seconds); 
     Uint32 getTime() const;
     void render(SDL_Renderer* renderer);
+    void stopTimer();
 
 private:
     Uint32 startTicks;
