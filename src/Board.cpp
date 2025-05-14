@@ -7,7 +7,7 @@
 #include <iomanip>
 
 Board::Board(SDL_Renderer* renderer, Timer* timer, int windowWidth, int windowHeight)
-    : renderer(renderer), selectedRow(-1), selectedCol(-1), font(nullptr), timer(timer), hoverCol(-1), hoverRow(-1) {
+    : renderer(renderer), selectedRow(-1), selectedCol(-1), font(nullptr), timer(timer), hoverCol(-1), hoverRow(-1),showVictoryMessage(false), victorySound(nullptr) {
     std::string basePath(SDL_GetBasePath());
     std::string fontPath = basePath + "assets/font.ttf";
     font = TTF_OpenFont(fontPath.c_str(), 28);
@@ -21,6 +21,12 @@ Board::Board(SDL_Renderer* renderer, Timer* timer, int windowWidth, int windowHe
 
     buttons.emplace_back(new Button("Check", 440, 540, 100, 50));
     buttons.emplace_back(new Button("New Game", 200, 540, 150, 50));
+
+    std::string victorySoundPath = basePath + "assets/victory_sound.wav";
+    victorySound = Mix_LoadWAV(victorySoundPath.c_str());
+    if (!victorySound) {
+        std::cerr << "Failed to load victory sound: " << Mix_GetError() << "\n";
+    }
 
     loadFromFile();
 }
@@ -78,6 +84,7 @@ void Board::handleEvent(SDL_Event& e) {
         } else if (buttons[0]->isClicked(x, y)) {
             wrongCells = Utils::checkWrongCells(board);
             showVictoryMessage = checkVictory();
+            playVictorySound();
         } else if (buttons[1]->isClicked(x, y)) {
             Utils::generatePuzzle();
             for (int i = 0; i < 9; ++i) {
@@ -116,6 +123,7 @@ void Board::handleEvent(SDL_Event& e) {
                 board[selectedRow][selectedCol] = num;
                  if (checkVictory()) {
                     showVictoryMessage = true;
+                    playVictorySound();
                     timer->stopTimer();
                     
                 }
@@ -125,6 +133,13 @@ void Board::handleEvent(SDL_Event& e) {
         }
     }
 }
+
+void Board::playVictorySound() {
+    if (victorySound) {
+        Mix_PlayChannel(-1, victorySound, 0);
+    }
+}
+
 
 void Board::drawGrid() {
     int vX = paddingLeft;

@@ -4,6 +4,7 @@
 #include <vector>
 #include "Timer.h"
 #include "Button.h"
+#include <SDL_mixer.h>
 
 class Board {
 public:
@@ -26,6 +27,7 @@ private:
     bool fixed[9][9];
     Timer* timer;
     bool showVictoryMessage;
+    Mix_Chunk* victorySound;
 
     int paddingLeft, paddingTop;
     std::vector<Button*> buttons;
@@ -39,4 +41,5 @@ private:
     void highLight(int row, int col, SDL_Color color);
     bool checkVictory();
     void drawVictoryMessage();
+    void playVictorySound(); 
 };
