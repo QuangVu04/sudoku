@@ -20,7 +20,8 @@ Board::Board(SDL_Renderer* renderer, Timer* timer, int windowWidth, int windowHe
     paddingTop = PADDING_TOP;
 
     buttons.emplace_back(new Button("Check", 440, 540, 100, 50));
-    buttons.emplace_back(new Button("New Game", 200, 540, 150, 50));
+    buttons.emplace_back(new Button("New Game", 300, 540, 140, 50));
+    buttons.emplace_back(new Button("Hints", 200, 540, 100, 50));
 
     std::string victorySoundPath = basePath + "assets/victory_sound.wav";
     victorySound = Mix_LoadWAV(victorySoundPath.c_str());
@@ -56,6 +57,7 @@ void Board::render() {
 
     buttons[0]->render(renderer);
     buttons[1]->render(renderer);
+    buttons[2]->render(renderer);
 
     highLight(hoverRow, hoverCol, {169, 169, 169, 128});
     drawNumbers();
@@ -102,7 +104,20 @@ void Board::handleEvent(SDL_Event& e) {
             wrongCells = Utils::checkWrongCells(board);
             showVictoryMessage = checkVictory();
             
-        } else if (buttons[1]->isClicked(x, y)) {
+        } else if (buttons[2]->isClicked(x, y)) {
+            if (selectedRow >= 0 && selectedCol >= 0) {
+                if (fixed[selectedRow][selectedCol]) {
+                    return;
+                }
+                int hintValue = Utils::getHint(selectedRow, selectedCol);
+                if (hintValue != -1) {
+                    board[selectedRow][selectedCol] = hintValue;
+                    fixed[selectedRow][selectedCol] = true;
+                    highLight(selectedRow, selectedCol, {0, 255, 0, 128});
+                }
+            }
+        }
+         else if (buttons[1]->isClicked(x, y)) {
             Utils::generatePuzzle();
             for (int i = 0; i < 9; ++i) {
                 for (int j = 0; j < 9; ++j) {

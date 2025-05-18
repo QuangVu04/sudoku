@@ -23,5 +23,6 @@ public:
     static bool isPuzzleFull();
     static bool checkWin();
     static void generatePuzzle();
+    static int getHint(int row, int col);
     static std::vector<std::pair<int, int>> checkWrongCells(int playerBoard[9][9]);
 };

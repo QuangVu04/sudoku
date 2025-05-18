@@ -144,3 +144,8 @@ bool Utils::checkWin() {
                 return false;
     return true;
 }
+int Utils::getHint(int row, int col){
+    if (row < 0 || row >= 9 || col < 0 || col >= 9)
+        return -1;
+    return board[row][col];
+}
