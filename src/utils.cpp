@@ -64,12 +64,11 @@ void Utils::generateBoard() {
     permuteNumbers();
 }
 
-void Utils::generatePuzzle() {
+void Utils::generatePuzzle(int cellsToRemove) {
     generateBoard();
     for (int i = 0; i < 9; ++i)
         for (int j = 0; j < 9; ++j)
-            puzzle[i][j] = board[i][j];
-    int cellsToRemove = 81 - (rand() % (35 - 30 + 1) + 30);  
+            puzzle[i][j] = board[i][j]; 
     removeNumbers(puzzle, cellsToRemove);
 }
 

@@ -6,6 +6,13 @@
 #include "Button.h"
 #include <SDL_mixer.h>
 
+enum GameState {
+    STATE_MENU,
+    STATE_LEVEL,
+    STATE_PLAYING,
+    STATE_EXIT
+};
+
 class Board {
 public:
     Board(SDL_Renderer* renderer, Timer* timer, int windowWidth, int windowHeight);
@@ -29,9 +36,12 @@ private:
     bool showVictoryMessage;
     Mix_Chunk* victorySound;
     bool bgmMuted = false;
+    GameState currentState = STATE_MENU;
 
     int paddingLeft, paddingTop;
     std::vector<Button*> buttons;
+    std::vector<Button*> menuButtons;
+    std::vector<Button*> levelButtons;
     std::vector<std::pair<int, int>> wrongCells;
 
     void drawGrid();
@@ -44,4 +54,6 @@ private:
     void drawVictoryMessage(const std::string& text, const std::string& subtext);
     void playVictorySound(); 
     void highlightSameNum();
+    void drawMainMenu();
+    void drawDifficultyMenu();
 };

@@ -24,6 +24,13 @@ Board::Board(SDL_Renderer* renderer, Timer* timer, int windowWidth, int windowHe
     buttons.emplace_back(new Button("New Game", 300, 540, 140, 50));
     buttons.emplace_back(new Button("Hints", 200, 540, 100, 50));
     buttons.emplace_back(new Button("Mute", windowWidth - 100, 0, 75, 40));
+    menuButtons.emplace_back(new Button("New Game", 175, 200, 200, 50));
+    menuButtons.emplace_back(new Button("Load Game", 175, 270, 200, 50));
+    menuButtons.emplace_back(new Button("Exit", 175, 340, 200, 50));
+    levelButtons.emplace_back(new Button("Easy", 175, 200, 200, 50));
+    levelButtons.emplace_back(new Button("Medium", 175, 270, 200, 50));
+    levelButtons.emplace_back(new Button("Hard", 175, 340, 200, 50));
+    levelButtons.emplace_back(new Button("Back", 175, 410, 200, 50));
 
     std::string victorySoundPath = basePath + "assets/victory_sound.wav";
     victorySound = Mix_LoadWAV(victorySoundPath.c_str());
@@ -54,6 +61,16 @@ void Board::saveToFile() {
 }
 
 void Board::render() {
+    if (currentState == STATE_MENU) {
+        drawMainMenu();
+        
+    }
+    if(currentState == STATE_LEVEL){
+        drawDifficultyMenu();
+    }
+    
+    if (currentState == STATE_PLAYING) {
+    
     drawGrid();
     highlightSameNum();
 
@@ -70,10 +87,65 @@ void Board::render() {
     if (timer->getTime() >= 600) {
         drawVictoryMessage("TIME UP!","You ran out of time!");
     }
+}
     
 }
 
 void Board::handleEvent(SDL_Event& e) {
+    if (currentState == STATE_MENU) {
+        if (e.type == SDL_MOUSEBUTTONDOWN) {
+            int x = e.button.x;
+            int y = e.button.y;
+            if (menuButtons[0]->isClicked(x, y)) {
+                currentState = STATE_LEVEL;
+            } else if (menuButtons[1]->isClicked(x, y)) {
+                loadFromFile();
+                currentState = STATE_PLAYING;
+            } else if (menuButtons[2]->isClicked(x, y)) {
+                currentState = STATE_EXIT;
+            }
+        }
+        return;
+    }
+    if (currentState == STATE_LEVEL) {
+        // if (e.type == SDL_MOUSEBUTTONDOWN) {
+        //     int x = e.button.x;
+        //     int y = e.button.y;
+
+        //     if (levelButtons[0]->isClicked(x, y)) {
+        //         Utils::generatePuzzle(40);
+        //         for (int i = 0; i < 9; ++i)
+        //             for (int j = 0; j < 9; ++j) {
+        //                 board[i][j] = Utils::puzzle[i][j];
+        //                 fixed[i][j] = board[i][j] != 0;
+        //             }
+        //         timer->setOffset(0);
+        //         currentState = STATE_PLAYING;
+        //     } else if (levelButtons[1]->isClicked(x, y)) {
+        //         Utils::generatePuzzle(50);
+        //         for (int i = 0; i < 9; ++i)
+        //             for (int j = 0; j < 9; ++j) {
+        //                 board[i][j] = Utils::puzzle[i][j];
+        //                 fixed[i][j] = board[i][j] != 0;
+        //             }
+        //         timer->setOffset(0);
+        //         currentState = STATE_PLAYING;
+        //     } else if (levelButtons[2]->isClicked(x, y)) {
+        //         Utils::generatePuzzle(60);
+        //         for (int i = 0; i < 9; ++i)
+        //             for (int j = 0; j < 9; ++j) {
+        //                 board[i][j] = Utils::puzzle[i][j];
+        //                 fixed[i][j] = board[i][j] != 0;
+        //             }
+        //         timer->setOffset(0);
+        //         currentState = STATE_PLAYING;
+        //     } else if (levelButtons[3]->isClicked(x, y)) {
+        //         currentState = STATE_MENU;
+        //     }
+        // }
+        // return;
+    }
+    if (currentState == STATE_PLAYING) {
     if (e.type == SDL_MOUSEBUTTONDOWN) {
         if (showVictoryMessage) {
             showVictoryMessage = false;
@@ -177,6 +249,8 @@ void Board::handleEvent(SDL_Event& e) {
         }
     }
 }
+}
+
 
 void Board::playVictorySound() {
     if (victorySound) {
@@ -359,4 +433,38 @@ void Board::drawVictoryMessage(const std::string& text, const std::string& subte
     
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
+}
+
+void Board::drawMainMenu() {
+    SDL_SetRenderDrawColor(renderer, 255,255,255, 255);
+    SDL_RenderClear(renderer);
+
+    SDL_Color color = {0, 0, 0, 255};
+    SDL_Surface* titleSurface = TTF_RenderText_Solid(font, "Sudoku Game", color);
+    SDL_Texture* titleTexture = SDL_CreateTextureFromSurface(renderer, titleSurface);
+    SDL_Rect titleRect = { (550 - titleSurface->w) / 2, 100, titleSurface->w, titleSurface->h };
+    SDL_RenderCopy(renderer, titleTexture, NULL, &titleRect);
+    SDL_FreeSurface(titleSurface);
+    SDL_DestroyTexture(titleTexture);
+
+    for (auto& button : menuButtons) {
+        button->render(renderer);
+    }
+}
+
+void Board::drawDifficultyMenu() {
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderClear(renderer);
+
+    SDL_Color color = {0, 0, 0, 255};
+    SDL_Surface* titleSurface = TTF_RenderText_Solid(font, "Select Difficulty", color);
+    SDL_Texture* titleTexture = SDL_CreateTextureFromSurface(renderer, titleSurface);
+    SDL_Rect titleRect = { (550 - titleSurface->w) / 2, 100, titleSurface->w, titleSurface->h };
+    SDL_RenderCopy(renderer, titleTexture, NULL, &titleRect);
+    SDL_FreeSurface(titleSurface);
+    SDL_DestroyTexture(titleTexture);
+
+    for (auto& button : levelButtons) {
+        button->render(renderer);
+    }
 }
