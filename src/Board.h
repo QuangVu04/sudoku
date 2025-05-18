@@ -42,4 +42,5 @@ private:
     bool checkVictory();
     void drawVictoryMessage(const std::string& text, const std::string& subtext);
     void playVictorySound(); 
+    void highlightSameNum();
 };

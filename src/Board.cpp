@@ -52,13 +52,14 @@ void Board::saveToFile() {
 
 void Board::render() {
     drawGrid();
+    highlightSameNum();
 
     buttons[0]->render(renderer);
     buttons[1]->render(renderer);
 
     highLight(hoverRow, hoverCol, {169, 169, 169, 128});
     drawNumbers();
-     if (showVictoryMessage) {
+    if (showVictoryMessage) {
         drawVictoryMessage("VICTORY!","Congratulations! You solved the puzzle!");
     }
     if (timer->getTime() >= 600) {
@@ -95,13 +96,12 @@ void Board::handleEvent(SDL_Event& e) {
             selectedRow = (y - paddingTop - 6) / CELL_SIZE;
             selectedCol = (x - paddingLeft - 6) / CELL_SIZE;
 
-            if (board[selectedRow][selectedCol] != 0) {
-                selectedValue = board[selectedRow][selectedCol];
-            }
+            selectedValue = board[selectedRow][selectedCol];
+          
         } else if (buttons[0]->isClicked(x, y)) {
             wrongCells = Utils::checkWrongCells(board);
             showVictoryMessage = checkVictory();
-            playVictorySound();
+            
         } else if (buttons[1]->isClicked(x, y)) {
             Utils::generatePuzzle();
             for (int i = 0; i < 9; ++i) {
@@ -171,7 +171,10 @@ void Board::drawGrid() {
         vX = vX + CELL_SIZE + thickness;
         hY = hY + CELL_SIZE + thickness;
     }
+}
 
+void Board::highlightSameNum(){
+    if(selectedValue == 0) return;
     if (selectedRow != -1 && selectedCol != -1) {
         for (int row = 0; row < 9; ++row) {
             highLight(row, selectedCol, {169, 169, 169, 128}); 
@@ -179,7 +182,21 @@ void Board::drawGrid() {
         for (int col = 0; col < 9; ++col) {
             highLight(selectedRow, col, {169, 169, 169, 128}); 
         }
+        int startRow = (selectedRow / 3) * 3;
+        int startCol = (selectedCol / 3) * 3;
+        for (int i = 0; i < 3; ++i){
+            for (int j = 0; j < 3; ++j)
+                highLight(startRow + i, startCol + j, {169, 169, 169, 128}); 
+        }
+        for(int row = 0; row < 9; ++row){
+            for(int col = 0; col < 9; ++col){
+                if(board[row][col] == selectedValue && (row != selectedRow || col != selectedCol)){
+                    highLight(row, col, {116,116,116, 128}); 
+                }
+            }
+        }
     }
+
 }
 
 void Board::drawNumbers() {
@@ -187,11 +204,11 @@ void Board::drawNumbers() {
     for (int row = 0; row < 9; ++row) {
         for (int col = 0; col < 9; ++col) {
             if (row == selectedRow && col == selectedCol) {
-                highLight(row, col, {169, 169, 169, 255}); 
+                highLight(row, col, {116,116,116, 128}); 
             }
             if (board[row][col] == selectedValue && selectedValue != 0) {
                 if (row == selectedRow || col == selectedCol) {
-                    highLight(row, col, {169, 169, 169, 255}); 
+                    highLight(row, col, {116,116,116, 128}); 
                 }
             }
             if (!wrongCells.empty()) {
