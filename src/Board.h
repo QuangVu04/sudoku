@@ -28,6 +28,7 @@ private:
     Timer* timer;
     bool showVictoryMessage;
     Mix_Chunk* victorySound;
+    bool bgmMuted = false;
 
     int paddingLeft, paddingTop;
     std::vector<Button*> buttons;

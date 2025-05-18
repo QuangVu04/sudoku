@@ -11,6 +11,7 @@ public:
 
     void render(SDL_Renderer* renderer);
     bool isClicked(int mouseX, int mouseY);
+    void setText(const std::string& newText);
 
 private:
     std::string text;

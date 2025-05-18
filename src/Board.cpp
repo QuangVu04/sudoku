@@ -19,9 +19,11 @@ Board::Board(SDL_Renderer* renderer, Timer* timer, int windowWidth, int windowHe
     paddingLeft = (windowWidth - BOARD_SIZE) / 2; 
     paddingTop = PADDING_TOP;
 
+    
     buttons.emplace_back(new Button("Check", 440, 540, 100, 50));
     buttons.emplace_back(new Button("New Game", 300, 540, 140, 50));
     buttons.emplace_back(new Button("Hints", 200, 540, 100, 50));
+    buttons.emplace_back(new Button("Mute", windowWidth - 100, 0, 75, 40));
 
     std::string victorySoundPath = basePath + "assets/victory_sound.wav";
     victorySound = Mix_LoadWAV(victorySoundPath.c_str());
@@ -58,6 +60,7 @@ void Board::render() {
     buttons[0]->render(renderer);
     buttons[1]->render(renderer);
     buttons[2]->render(renderer);
+    buttons[3]->render(renderer);
 
     highLight(hoverRow, hoverCol, {169, 169, 169, 128});
     drawNumbers();
@@ -104,7 +107,16 @@ void Board::handleEvent(SDL_Event& e) {
             wrongCells = Utils::checkWrongCells(board);
             showVictoryMessage = checkVictory();
             
-        } else if (buttons[2]->isClicked(x, y)) {
+        } else if (buttons[3]->isClicked(x, y)) {
+            if (bgmMuted) {
+                Mix_ResumeMusic();
+                bgmMuted = false;
+            } else {
+                Mix_PauseMusic();
+                bgmMuted = true;
+            }
+            buttons[3]->setText(bgmMuted ? "Unmute" : "Mute");
+        }else if (buttons[2]->isClicked(x, y)) {
             if (selectedRow >= 0 && selectedCol >= 0) {
                 if (fixed[selectedRow][selectedCol]) {
                     return;

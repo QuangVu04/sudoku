@@ -45,3 +45,7 @@ void Button::render(SDL_Renderer* renderer) {
 bool Button::isClicked(int mouseX, int mouseY) {
     return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
 }
+
+void Button::setText(const std::string& newText) {
+    text = newText;
+}
