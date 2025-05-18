@@ -6,8 +6,8 @@
 #include <sstream>
 #include <iomanip>
 
-Board::Board(SDL_Renderer* renderer, Timer* timer, int windowWidth, int windowHeight)
-    : renderer(renderer), selectedRow(-1), selectedCol(-1), font(nullptr), timer(timer), hoverCol(-1), hoverRow(-1),showVictoryMessage(false), victorySound(nullptr) {
+Board::Board(SDL_Renderer* renderer, SDL_Texture* muteTexture, Timer* timer, int windowWidth, int windowHeight)
+    : renderer(renderer), muteTexture(muteTexture), selectedRow(-1), selectedCol(-1), font(nullptr), timer(timer), hoverCol(-1), hoverRow(-1),showVictoryMessage(false), victorySound(nullptr) {
     std::string basePath(SDL_GetBasePath());
     std::string fontPath = basePath + "assets/font.ttf";
     font = TTF_OpenFont(fontPath.c_str(), 28);
@@ -22,7 +22,7 @@ Board::Board(SDL_Renderer* renderer, Timer* timer, int windowWidth, int windowHe
     buttons.emplace_back(new Button("Check", 440, 540, 100, 50));
     buttons.emplace_back(new Button("New Game", 300, 540, 140, 50));
     buttons.emplace_back(new Button("Hints", 200, 540, 100, 50));
-    buttons.emplace_back(new Button("Mute", windowWidth - 100, 0, 75, 40));
+    buttons.emplace_back(new Button(muteTexture, windowWidth - 100, 0, 75, 40));
     buttons.emplace_back(new Button("Back", 10, 0, 75, 40));
     menuButtons.emplace_back(new Button("New Game", 175, 200, 200, 50));
     menuButtons.emplace_back(new Button("Load Game", 175, 270, 200, 50));
@@ -191,11 +191,12 @@ void Board::handleEvent(SDL_Event& e) {
                 if (bgmMuted) {
                     Mix_ResumeMusic();
                     bgmMuted = false;
+                    buttons[3]->setImage({0, 0, 425, 360});
                 } else {
                     Mix_PauseMusic();
                     bgmMuted = true;
+                    buttons[3]->setImage({540, 0, 398, 360});
                 }
-                buttons[3]->setText(bgmMuted ? "Unmute" : "Mute");
             } else if (buttons[2]->isClicked(x, y)) {
                 if (selectedRow >= 0 && selectedCol >= 0) {
                     if (fixed[selectedRow][selectedCol]) {

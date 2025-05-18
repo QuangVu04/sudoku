@@ -15,7 +15,7 @@ enum GameState {
 
 class Board {
 public:
-    Board(SDL_Renderer* renderer, Timer* timer, int windowWidth, int windowHeight);
+    Board(SDL_Renderer* renderer, SDL_Texture* muteTexture, Timer* timer, int windowWidth, int windowHeight);
     ~Board();
 
     void render();
@@ -28,6 +28,7 @@ private:
 
     SDL_Renderer* renderer;
     TTF_Font* font;
+    SDL_Texture* muteTexture;
     int selectedRow, selectedCol, selectedValue;
     int hoverRow, hoverCol;
     int board[9][9];
@@ -39,7 +40,7 @@ private:
     GameState currentState = STATE_MENU;
 
     int paddingLeft, paddingTop;
-    int difficultyLevel = 0;
+    int difficultyLevel = 30;
     std::vector<Button*> buttons;
     std::vector<Button*> menuButtons;
     std::vector<Button*> levelButtons;

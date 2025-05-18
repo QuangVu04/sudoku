@@ -26,6 +26,7 @@ private:
     bool running;
     Mix_Music *bgm = nullptr;
     Mix_Chunk* victorySound = nullptr;
+    SDL_Texture* muteTexture = nullptr;
     Board* board;
     Timer* timer;
 };

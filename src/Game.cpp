@@ -2,10 +2,11 @@
 #include <SDL_ttf.h>
 #include <SDL.h>
 #include <SDL_mixer.h>
+#include <SDL_image.h>
 #include <iostream>
 #include <string>
 
-Game::Game() : window(nullptr), renderer(nullptr), running(false), board(nullptr), timer(nullptr), font(nullptr) {}
+Game::Game() : window(nullptr), renderer(nullptr), running(false), board(nullptr), timer(nullptr), font(nullptr), muteTexture(nullptr), bgm(nullptr), victorySound(nullptr) {}
 
 Game::~Game() {}
 
@@ -20,6 +21,11 @@ bool Game::init(const char* title) {
         return false;
     }
 
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
+        std::cout << "SDL_image không thể khởi tạo! IMG_Error: " << IMG_GetError() << "\n";
+        return 1;
+    }
+
     window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
@@ -27,10 +33,26 @@ bool Game::init(const char* title) {
         std::cerr << "Window/Renderer Init Error\n";
         return false;
     }
+    
+    std::string basePath(SDL_GetBasePath());
+
+    std::string muteImagePath = basePath + "assets/mute.jpg";
+    SDL_Surface* loadedSurface = IMG_Load(muteImagePath.c_str());
+    if (loadedSurface == nullptr) {
+        std::cout << "Không thể tải ảnh! IMG_Error: " << IMG_GetError() << "\n";
+        return 1;
+    }
+
+    muteTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+    SDL_FreeSurface(loadedSurface);
+
+    if (muteTexture == nullptr) {
+        std::cout << "Không thể tạo texture! SDL_Error: " << SDL_GetError() << "\n";
+        return 1;
+    }
 
     timer = new Timer();
-    board = new Board(renderer, timer, WINDOW_WIDTH, WINDOW_HEIGHT);
-    std::string basePath(SDL_GetBasePath());
+    board = new Board(renderer, muteTexture, timer, WINDOW_WIDTH, WINDOW_HEIGHT);
     std::string fontPath = basePath + "assets/font.ttf";
     
     font = TTF_OpenFont(fontPath.c_str(), 75);
@@ -52,7 +74,6 @@ bool Game::init(const char* title) {
         std::cerr << "Failed to load victory sound: " << Mix_GetError() << "\n";
 
     }
-
 
     running = true;
     return true;
@@ -91,8 +112,10 @@ void Game::clean() {
     delete timer;
     if (font) TTF_CloseFont(font);
     Mix_CloseAudio();
+    SDL_DestroyTexture(muteTexture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     TTF_Quit();
+    IMG_Quit();
     SDL_Quit();
 }
