@@ -23,6 +23,7 @@ Board::Board(SDL_Renderer* renderer, Timer* timer, int windowWidth, int windowHe
     buttons.emplace_back(new Button("New Game", 300, 540, 140, 50));
     buttons.emplace_back(new Button("Hints", 200, 540, 100, 50));
     buttons.emplace_back(new Button("Mute", windowWidth - 100, 0, 75, 40));
+    buttons.emplace_back(new Button("Back", 10, 0, 75, 40));
     menuButtons.emplace_back(new Button("New Game", 175, 200, 200, 50));
     menuButtons.emplace_back(new Button("Load Game", 175, 270, 200, 50));
     menuButtons.emplace_back(new Button("Exit", 175, 340, 200, 50));
@@ -183,6 +184,9 @@ void Board::handleEvent(SDL_Event& e) {
             } else if (buttons[0]->isClicked(x, y)) {
                 wrongCells = Utils::checkWrongCells(board);
                 showVictoryMessage = checkVictory();
+            } else if (buttons[4]->isClicked(x, y)) {
+               currentState = STATE_MENU;
+               saveToFile();
             } else if (buttons[3]->isClicked(x, y)) {
                 if (bgmMuted) {
                     Mix_ResumeMusic();
