@@ -80,7 +80,7 @@ void Game::run() {
         SDL_RenderClear(renderer);
         drawTitle("sudoku");
         board->render();
-        timer->render(renderer);
+        // timer->render(renderer);
 
         SDL_RenderPresent(renderer);
     }

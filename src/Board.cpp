@@ -19,7 +19,6 @@ Board::Board(SDL_Renderer* renderer, Timer* timer, int windowWidth, int windowHe
     paddingLeft = (windowWidth - BOARD_SIZE) / 2; 
     paddingTop = PADDING_TOP;
 
-    
     buttons.emplace_back(new Button("Check", 440, 540, 100, 50));
     buttons.emplace_back(new Button("New Game", 300, 540, 140, 50));
     buttons.emplace_back(new Button("Hints", 200, 540, 100, 50));
@@ -61,41 +60,46 @@ void Board::saveToFile() {
 }
 
 void Board::render() {
-    if (currentState == STATE_MENU) {
-        drawMainMenu();
-        
-    }
-    if(currentState == STATE_LEVEL){
-        drawDifficultyMenu();
-    }
-    
-    if (currentState == STATE_PLAYING) {
-    
-    drawGrid();
-    highlightSameNum();
+     switch (currentState) {
+        case STATE_MENU:
+            drawMainMenu();
+            break;
 
-    buttons[0]->render(renderer);
-    buttons[1]->render(renderer);
-    buttons[2]->render(renderer);
-    buttons[3]->render(renderer);
+        case STATE_LEVEL:
+            drawDifficultyMenu();
+            break;
 
-    highLight(hoverRow, hoverCol, {169, 169, 169, 128});
-    drawNumbers();
-    if (showVictoryMessage) {
-        drawVictoryMessage("VICTORY!","Congratulations! You solved the puzzle!");
-    }
-    if (timer->getTime() >= 600) {
-        drawVictoryMessage("TIME UP!","You ran out of time!");
+        case STATE_PLAYING:
+            timer->render(renderer);
+            drawGrid();
+            highlightSameNum();
+
+            for (auto& button : buttons) {
+                button->render(renderer);
+            }
+
+            highLight(hoverRow, hoverCol, {169, 169, 169, 128});
+            drawNumbers();
+
+            if (showVictoryMessage) {
+                drawVictoryMessage("VICTORY!", "Congratulations! You solved the puzzle!");
+            }
+
+            if (timer->getTime() >= 600) {
+                drawVictoryMessage("TIME UP!", "You ran out of time!");
+            }
+            break;
     }
 }
     
-}
 
 void Board::handleEvent(SDL_Event& e) {
-    if (currentState == STATE_MENU) {
+    switch (currentState) {
+    case STATE_MENU:
         if (e.type == SDL_MOUSEBUTTONDOWN) {
             int x = e.button.x;
             int y = e.button.y;
+
             if (menuButtons[0]->isClicked(x, y)) {
                 currentState = STATE_LEVEL;
             } else if (menuButtons[1]->isClicked(x, y)) {
@@ -105,9 +109,9 @@ void Board::handleEvent(SDL_Event& e) {
                 currentState = STATE_EXIT;
             }
         }
-        return;
-    }
-    if (currentState == STATE_LEVEL) {
+        break;
+
+    case STATE_LEVEL:
         if (e.type == SDL_MOUSEBUTTONDOWN) {
             int x = e.button.x;
             int y = e.button.y;
@@ -146,111 +150,114 @@ void Board::handleEvent(SDL_Event& e) {
                 currentState = STATE_MENU;
             }
         }
-        return;
-    }
-    if (currentState == STATE_PLAYING) {
-    if (e.type == SDL_MOUSEBUTTONDOWN) {
-        if (showVictoryMessage) {
-            showVictoryMessage = false;
-        Utils::generatePuzzle(difficultyLevel);
-        for (int i = 0; i < 9; ++i) {
-            for (int j = 0; j < 9; ++j) {
-                board[i][j] = Utils::puzzle[i][j];
-                fixed[i][j] = Utils::puzzle[i][j] != 0;
+        break;
+
+    case STATE_PLAYING:
+        if (e.type == SDL_MOUSEBUTTONDOWN) {
+            if (showVictoryMessage) {
+                showVictoryMessage = false;
+                Utils::generatePuzzle(difficultyLevel);
+                for (int i = 0; i < 9; ++i) {
+                    for (int j = 0; j < 9; ++j) {
+                        board[i][j] = Utils::puzzle[i][j];
+                        fixed[i][j] = Utils::puzzle[i][j] != 0;
+                    }
+                }
+                wrongCells.clear();
+                selectedRow = -1;
+                selectedCol = -1;
+                selectedValue = 0;
+                timer->setOffset(0);
+                return;
             }
-        }
-        wrongCells.clear();
-        selectedRow = -1;
-        selectedCol = -1;
-        selectedValue = 0;
-        timer->setOffset(0);
 
-        return; 
-        }
-        int x = e.button.x;
-        int y = e.button.y;
-        if (y > paddingTop && y < paddingTop + BOARD_SIZE
-            && x > paddingLeft && x < paddingLeft + BOARD_SIZE
-        ) {
-            wrongCells.clear();
-            selectedRow = (y - paddingTop - 6) / CELL_SIZE;
-            selectedCol = (x - paddingLeft - 6) / CELL_SIZE;
+            int x = e.button.x;
+            int y = e.button.y;
 
-            selectedValue = board[selectedRow][selectedCol];
-          
-        } else if (buttons[0]->isClicked(x, y)) {
-            wrongCells = Utils::checkWrongCells(board);
-            showVictoryMessage = checkVictory();
-            
-        } else if (buttons[3]->isClicked(x, y)) {
-            if (bgmMuted) {
-                Mix_ResumeMusic();
-                bgmMuted = false;
+            if (y > paddingTop && y < paddingTop + BOARD_SIZE
+                && x > paddingLeft && x < paddingLeft + BOARD_SIZE) {
+                wrongCells.clear();
+                selectedRow = (y - paddingTop - 6) / CELL_SIZE;
+                selectedCol = (x - paddingLeft - 6) / CELL_SIZE;
+                selectedValue = board[selectedRow][selectedCol];
+            } else if (buttons[0]->isClicked(x, y)) {
+                wrongCells = Utils::checkWrongCells(board);
+                showVictoryMessage = checkVictory();
+            } else if (buttons[3]->isClicked(x, y)) {
+                if (bgmMuted) {
+                    Mix_ResumeMusic();
+                    bgmMuted = false;
+                } else {
+                    Mix_PauseMusic();
+                    bgmMuted = true;
+                }
+                buttons[3]->setText(bgmMuted ? "Unmute" : "Mute");
+            } else if (buttons[2]->isClicked(x, y)) {
+                if (selectedRow >= 0 && selectedCol >= 0) {
+                    if (fixed[selectedRow][selectedCol]) {
+                        return;
+                    }
+                    int hintValue = Utils::getHint(selectedRow, selectedCol);
+                    if (hintValue != -1) {
+                        board[selectedRow][selectedCol] = hintValue;
+                        fixed[selectedRow][selectedCol] = true;
+                        highLight(selectedRow, selectedCol, {0, 255, 0, 128});
+                    }
+                }
+            } else if (buttons[1]->isClicked(x, y)) {
+                Utils::generatePuzzle(difficultyLevel);
+                for (int i = 0; i < 9; ++i) {
+                    for (int j = 0; j < 9; ++j) {
+                        board[i][j] = Utils::puzzle[i][j];
+                        fixed[i][j] = Utils::puzzle[i][j] != 0;
+                    }
+                }
+                wrongCells.clear();
+                selectedRow = -1;
+                selectedCol = -1;
+                selectedValue = 0;
+                timer->setOffset(0);
             } else {
-                Mix_PauseMusic();
-                bgmMuted = true;
+                wrongCells.clear();
+                selectedRow = -1;
+                selectedCol = -1;
+                selectedValue = 0;
             }
-            buttons[3]->setText(bgmMuted ? "Unmute" : "Mute");
-        }else if (buttons[2]->isClicked(x, y)) {
-            if (selectedRow >= 0 && selectedCol >= 0) {
-                if (fixed[selectedRow][selectedCol]) {
-                    return;
-                }
-                int hintValue = Utils::getHint(selectedRow, selectedCol);
-                if (hintValue != -1) {
-                    board[selectedRow][selectedCol] = hintValue;
-                    fixed[selectedRow][selectedCol] = true;
-                    highLight(selectedRow, selectedCol, {0, 255, 0, 128});
-                }
+        } else if (e.type == SDL_MOUSEMOTION) {
+            int x = e.motion.x;
+            int y = e.motion.y;
+            if (y > paddingTop && y < paddingTop + BOARD_SIZE
+                && x > paddingLeft && x < paddingLeft + BOARD_SIZE) {
+                hoverRow = (y - paddingTop - 9) / CELL_SIZE;
+                hoverCol = (x - paddingLeft - 9) / CELL_SIZE;
+            } else {
+                hoverCol = -1;
+                hoverRow = -1;
             }
-        }
-         else if (buttons[1]->isClicked(x, y)) {
-            Utils::generatePuzzle(difficultyLevel);
-            for (int i = 0; i < 9; ++i) {
-                for (int j = 0; j < 9; ++j) {
-                    board[i][j] = Utils::puzzle[i][j];
-                    fixed[i][j] = Utils::puzzle[i][j] != 0;
+        } else if (e.type == SDL_KEYDOWN) {
+            if (selectedRow >= 0 && selectedCol >= 0 && !fixed[selectedRow][selectedCol]) {
+                int num = e.key.keysym.sym - SDLK_0;
+                if (num >= 1 && num <= 9) {
+                    board[selectedRow][selectedCol] = num;
+                    if (checkVictory()) {
+                        showVictoryMessage = true;
+                        playVictorySound();
+                        timer->stopTimer();
+                    }
+                } else if (e.key.keysym.sym == SDLK_BACKSPACE || e.key.keysym.sym == SDLK_DELETE) {
+                    board[selectedRow][selectedCol] = 0;
                 }
-            }
-            wrongCells.clear();
-            selectedRow = -1;
-            selectedCol = -1;
-            selectedValue = 0;
-            timer->setOffset(0);
-        } else {
-            wrongCells.clear();
-            selectedRow = -1;
-            selectedCol = -1;
-            selectedValue = 0;
-        }
-    } else if (e.type == SDL_MOUSEMOTION) {
-        int x = e.motion.x;
-        int y = e.motion.y;
-        if (y > paddingTop && y < paddingTop + BOARD_SIZE
-            && x > paddingLeft && x < paddingLeft + BOARD_SIZE
-        ) {
-            hoverRow = (y - paddingTop - 9) / CELL_SIZE;
-            hoverCol = (x - paddingLeft - 9) / CELL_SIZE;
-        } else {
-            hoverCol = -1;
-            hoverRow = -1;
-        }
-    } else if (e.type == SDL_KEYDOWN) {
-        if (selectedRow >= 0 && selectedCol >= 0 && !fixed[selectedRow][selectedCol]) {
-            int num = e.key.keysym.sym - SDLK_0;
-            if (num >= 1 && num <= 9) {
-                board[selectedRow][selectedCol] = num;
-                 if (checkVictory()) {
-                    showVictoryMessage = true;
-                    playVictorySound();
-                    timer->stopTimer();
-                    
-                }
-            } else if (e.key.keysym.sym == SDLK_BACKSPACE || e.key.keysym.sym == SDLK_DELETE) {
-                board[selectedRow][selectedCol] = 0;
             }
         }
-    }
+        break;
+
+    case STATE_EXIT:
+    SDL_Quit();
+    exit(0);
+        break;
+
+    default:
+        break;
 }
 }
 
@@ -303,6 +310,7 @@ void Board::highlightSameNum(){
 
 }
 
+
 void Board::drawNumbers() {
     SDL_Color color = {0, 0, 0, 255};  
     for (int row = 0; row < 9; ++row) {
@@ -341,6 +349,7 @@ void Board::drawNumbers() {
         }
     }
 }
+
 
 void Board::highLight(int row, int col, SDL_Color color) {
     if (row < 0 || col < 0 || row >= 9 || col >= 9) return;
