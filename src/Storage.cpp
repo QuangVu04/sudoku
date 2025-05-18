@@ -19,7 +19,7 @@ void Storage::load(const char* filename, int board[9][9], bool fixed[9][9], Uint
         }
     file.close();
     if (sum == 0) {
-        Utils::generatePuzzle();
+        Utils::generatePuzzle(40);
         for (int i = 0; i < 9; ++i) {
             for (int j = 0; j < 9; ++j) {
                 board[i][j] = Utils::puzzle[i][j];

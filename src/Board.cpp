@@ -108,48 +108,51 @@ void Board::handleEvent(SDL_Event& e) {
         return;
     }
     if (currentState == STATE_LEVEL) {
-        // if (e.type == SDL_MOUSEBUTTONDOWN) {
-        //     int x = e.button.x;
-        //     int y = e.button.y;
+        if (e.type == SDL_MOUSEBUTTONDOWN) {
+            int x = e.button.x;
+            int y = e.button.y;
 
-        //     if (levelButtons[0]->isClicked(x, y)) {
-        //         Utils::generatePuzzle(40);
-        //         for (int i = 0; i < 9; ++i)
-        //             for (int j = 0; j < 9; ++j) {
-        //                 board[i][j] = Utils::puzzle[i][j];
-        //                 fixed[i][j] = board[i][j] != 0;
-        //             }
-        //         timer->setOffset(0);
-        //         currentState = STATE_PLAYING;
-        //     } else if (levelButtons[1]->isClicked(x, y)) {
-        //         Utils::generatePuzzle(50);
-        //         for (int i = 0; i < 9; ++i)
-        //             for (int j = 0; j < 9; ++j) {
-        //                 board[i][j] = Utils::puzzle[i][j];
-        //                 fixed[i][j] = board[i][j] != 0;
-        //             }
-        //         timer->setOffset(0);
-        //         currentState = STATE_PLAYING;
-        //     } else if (levelButtons[2]->isClicked(x, y)) {
-        //         Utils::generatePuzzle(60);
-        //         for (int i = 0; i < 9; ++i)
-        //             for (int j = 0; j < 9; ++j) {
-        //                 board[i][j] = Utils::puzzle[i][j];
-        //                 fixed[i][j] = board[i][j] != 0;
-        //             }
-        //         timer->setOffset(0);
-        //         currentState = STATE_PLAYING;
-        //     } else if (levelButtons[3]->isClicked(x, y)) {
-        //         currentState = STATE_MENU;
-        //     }
-        // }
-        // return;
+            if (levelButtons[0]->isClicked(x, y)) {
+                difficultyLevel = 36 + rand() % (44 - 36 + 1);
+                Utils::generatePuzzle(difficultyLevel);
+                for (int i = 0; i < 9; ++i)
+                    for (int j = 0; j < 9; ++j) {
+                        board[i][j] = Utils::puzzle[i][j];
+                        fixed[i][j] = board[i][j] != 0;
+                    }
+                timer->setOffset(0);
+                currentState = STATE_PLAYING;
+            } else if (levelButtons[1]->isClicked(x, y)) {
+                difficultyLevel = 45 + rand() % (49 - 45 + 1);
+                Utils::generatePuzzle(difficultyLevel);
+                for (int i = 0; i < 9; ++i)
+                    for (int j = 0; j < 9; ++j) {
+                        board[i][j] = Utils::puzzle[i][j];
+                        fixed[i][j] = board[i][j] != 0;
+                    }
+                timer->setOffset(0);
+                currentState = STATE_PLAYING;
+            } else if (levelButtons[2]->isClicked(x, y)) {
+                difficultyLevel = 50 + rand() % (54 - 50 + 1);
+                Utils::generatePuzzle(difficultyLevel);
+                for (int i = 0; i < 9; ++i)
+                    for (int j = 0; j < 9; ++j) {
+                        board[i][j] = Utils::puzzle[i][j];
+                        fixed[i][j] = board[i][j] != 0;
+                    }
+                timer->setOffset(0);
+                currentState = STATE_PLAYING;
+            } else if (levelButtons[3]->isClicked(x, y)) {
+                currentState = STATE_MENU;
+            }
+        }
+        return;
     }
     if (currentState == STATE_PLAYING) {
     if (e.type == SDL_MOUSEBUTTONDOWN) {
         if (showVictoryMessage) {
             showVictoryMessage = false;
-        Utils::generatePuzzle();
+        Utils::generatePuzzle(difficultyLevel);
         for (int i = 0; i < 9; ++i) {
             for (int j = 0; j < 9; ++j) {
                 board[i][j] = Utils::puzzle[i][j];
@@ -202,7 +205,7 @@ void Board::handleEvent(SDL_Event& e) {
             }
         }
          else if (buttons[1]->isClicked(x, y)) {
-            Utils::generatePuzzle();
+            Utils::generatePuzzle(difficultyLevel);
             for (int i = 0; i < 9; ++i) {
                 for (int j = 0; j < 9; ++j) {
                     board[i][j] = Utils::puzzle[i][j];

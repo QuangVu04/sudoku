@@ -39,6 +39,7 @@ private:
     GameState currentState = STATE_MENU;
 
     int paddingLeft, paddingTop;
+    int difficultyLevel = 0;
     std::vector<Button*> buttons;
     std::vector<Button*> menuButtons;
     std::vector<Button*> levelButtons;
