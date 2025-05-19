@@ -21,7 +21,7 @@ Xin tự giới thiệu mình là Nguyễn QUang Vũ, hiện mình đang là sin
 - [x] Code chia thành các **class rõ ràng** (`Board`, `Storage`, `Timer`, `Utils`), cho thấy sinh viên **hiểu và tổ chức tốt mã nguồn**.
 
 ### ⚙️ Các kỹ năng tự học, tự triển khai:
-- [x] Tìm hiểu và áp dụng SDL2 (render số, màu, highlight, font chữ).
+- [x] Tìm hiểu và áp dụng SDL2 (render số, màu, highlight, font chữ,âm thanh, hình ảnh).
 - [x] Tìm hiểu cách lưu file và khôi phục trạng thái với `fstream`.
 - [x] Làm hiệu ứng **highlight trong suốt (RGBA)** – không có trong mẫu gốc.
 - [x] Tự viết hàm kiểm tra hoàn thành Sudoku.
