@@ -25,7 +25,7 @@ Uint32 Timer::getTime() const {
 }
 
 void Timer::render(SDL_Renderer* renderer) {
-    Uint32 totalSeconds = getTime();
+    Uint32 totalSeconds = 600 - getTime();
     int minutes = totalSeconds / 60;
     int seconds = totalSeconds % 60;
 
